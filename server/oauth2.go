@@ -658,6 +658,11 @@ func validateRedirectURI(client storage.Client, redirectURI string) bool {
 			return true
 		}
 	}
+
+	if client.RedirectURIRegex != nil {
+		return client.RedirectURIRegex.MatchString(redirectURI)
+	}
+
 	// For non-public clients or when RedirectURIs is set, we allow only explicitly named RedirectURIs.
 	// Otherwise, we check below for special URIs used for desktop or mobile apps.
 	if !client.Public || len(client.RedirectURIs) > 0 {

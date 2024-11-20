@@ -77,6 +77,38 @@ func TestParseAuthorizationRequest(t *testing.T) {
 			},
 		},
 		{
+			name: "normal request regexp",
+			clients: []storage.Client{
+				{
+					ID:           "foo",
+					RedirectURIs: []string{""},
+				},
+			},
+			supportedResponseTypes: []string{"code"},
+			queryParams: map[string]string{
+				"client_id":     "foo",
+				"redirect_uri":  "https://10.110.266.89/wcp/pinniped/callback",
+				"response_type": "code",
+				"scope":         "openid email profile",
+			},
+		},
+		{
+			name: "normal request, but invalid regex",
+			clients: []storage.Client{
+				{
+					ID:           "foo",
+					RedirectURIs: []string{""},
+				},
+			},
+			supportedResponseTypes: []string{"code"},
+			queryParams: map[string]string{
+				"client_id":     "foo",
+				"redirect_uri":  "https://vxlan-vm-0-50-2.nimbus-tb.lvn.broadcom.net/wcp/pinniped/callback",
+				"response_type": "code",
+				"scope":         "openid email profile",
+			},
+		},
+		{
 			name: "POST request",
 			clients: []storage.Client{
 				{
@@ -348,7 +380,7 @@ func TestParseAuthorizationRequest(t *testing.T) {
 			_, err := server.parseAuthorizationRequest(req)
 			if tc.expectedError == nil {
 				if err != nil {
-					t.Errorf("%s: expected no error", tc.name)
+					t.Errorf("%s: expected no error: %+v", tc.name, err)
 				}
 			} else {
 				switch expectedErr := tc.expectedError.(type) {

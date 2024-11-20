@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"regexp"
 	"strings"
 )
 
@@ -21,10 +22,15 @@ type staticClientsStorage struct {
 	clientsByID map[string]Client
 }
 
+const regEx = `^https:\/\/(?:[0-9]{1,3}\.){3}[0-9]{1,3}\/wcp\/pinniped\/callback$|^https:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z0-9-]+\/wcp\/pinniped\/callback$`
+
 // WithStaticClients adds a read-only set of clients to the underlying storages.
 func WithStaticClients(s Storage, staticClients []Client) Storage {
 	clientsByID := make(map[string]Client, len(staticClients))
 	for _, client := range staticClients {
+		if re, err := regexp.Compile(regEx); err == nil {
+			client.RedirectURIRegex = re
+		}
 		clientsByID[client.ID] = client
 	}
 
